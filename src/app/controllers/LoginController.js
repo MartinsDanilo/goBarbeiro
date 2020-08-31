@@ -1,5 +1,3 @@
-import jwt from "jsonwebtoken";
-import autenticacao from "../../config/autenticacao";
 import * as Yup from "yup";
 import Usuario from "../models/Usuario";
 
@@ -10,7 +8,8 @@ class LoginController {
       senha: Yup.string().min(6).required(),
     });
 
-    if (!(await schema.isValid(req.body))) {
+    const isSchemaValid = await schema.isValid(req.body)
+    if (!isSchemaValid) {
       return res.status(400).json({ erro: "Validção Falhou!" });
     }
 
@@ -23,11 +22,13 @@ class LoginController {
     }
 
     //verificando se a senha digitada bate com o rash da senha do banco
-    if (!(await usuario.checaSenha(senha))) {
+    const isPasswordCorrect = await usuario.checaSenha(senha)
+    if (!isPasswordCorrect) {
       return res.status(401).json({ error: "Senha incorreta!" });
     }
 
     const { id, nome } = usuario;
+    const token = JwtHelper.sign(id)
 
     return res.json({
       usuario: {
@@ -35,10 +36,8 @@ class LoginController {
         nome,
         email,
       },
-      //gerandon um token no momento do cadastro. O mesmo não fica armazenado
-      token: jwt.sign({ id }, autenticacao.secret, {
-        expiresIn: autenticacao.expiresIn,
-      }),
+      // gerando um token no momento do cadastro. O mesmo não fica armazenado
+      token,
     });
   }
 }

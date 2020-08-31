@@ -11,9 +11,10 @@ class ServidoresController {
       include: [{
         model: Arquivo,
         attributes: ["nome", "path", "url"],
-      }, ],
+      }],
     });
-    return res.json(provider);
+
+    return res.json(servidor);
   }
 }
 

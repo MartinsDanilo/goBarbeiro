@@ -1,4 +1,5 @@
 import Arquivo from "../models/Arquivo";
+
 class ArquivoController {
   async store(req, res) {
     const {
@@ -11,6 +12,7 @@ class ArquivoController {
       nome,
       path,
     });
+
     return res.json(arquivo);
   }
 }
