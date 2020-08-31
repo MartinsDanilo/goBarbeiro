@@ -10,9 +10,6 @@ class Usuario extends Model {
       nome: Sequelize.STRING,
       email: Sequelize.STRING,
       senha: Sequelize.VIRTUAL,
-      senha: Sequelize.VIRTUAL,
-      senha_hash: Sequelize.STRING,
-      barbeiro: Sequelize.STRING,
       senha_hash: Sequelize.STRING,
       barbeiro: Sequelize.STRING,
     }, {
@@ -28,6 +25,7 @@ class Usuario extends Model {
 
     return this;
   }
+
   static associacao(models) {
     this.belongsTo(models.Arquivo, {
       foreignKey: "avatar_id",

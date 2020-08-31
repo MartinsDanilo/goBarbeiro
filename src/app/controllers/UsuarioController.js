@@ -1,5 +1,6 @@
 import Usuario from "../models/Usuario"
 import * as Yup from "yup";
+
 class UsuarioController {
   //Yup é usado para validar os dados
   async store(req, res) {
@@ -9,10 +10,10 @@ class UsuarioController {
       senha: Yup.string().min(6).required(),
     });
 
-
-    /*isValid é a função do yup que está no schema que verifica 
+    /*isValid é a função do yup que está no schema que verifica
     se os dados são válidos de acordo o exigido no schema */
-    if (!(await schema.isValid(req.body))) {
+    const isSchemaValid = await schema.isValid(req.body)
+    if (!isSchemaValid) {
       return res.status(400).json({
         error: "A validação Falhou!"
       });
@@ -58,13 +59,13 @@ class UsuarioController {
       senhaAnterior: Yup.string().required().min(6),
       senha: Yup.string()
         .min(6)
-        .when("senhaAnterior", (senhaAnterior, field) =>
-          senhaAnterior ? field.required() : field
+        .when("senhaAnterior", (value, field) =>
+          value ? field.required() : field
         ),
       confirmarSenha: Yup.string().when("senha", (senha, field) =>
         senha ? field.required().oneOf([Yup.ref("senha")]) : field
       ),
-    }); //When= Quando| arrowFunction((parametro1, parametro2)=>{}) | Ternario = condition ? expr1 : expr2    
+    }); //When= Quando| arrowFunction((parametro1, parametro2)=>{}) | Ternario = condition ? expr1 : expr2
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({
@@ -99,7 +100,8 @@ class UsuarioController {
       }
     }
 
-    if (senhaAnterior && !(await usuario.checaSenha(senhaAnterior))) {
+    const isPasswordCorrect = await usuario.checaSenha(senhaAnterior)
+    if (senhaAnterior && !isPasswordCorrect) {
       return res.status(401).json({
         error: "Senha incorreta!"
       });
@@ -110,9 +112,7 @@ class UsuarioController {
       barbeiro
     } = await usuario.update(req.body);
 
-
     const dadosUser = req.body;
-
 
     return res.json({
       nome,
@@ -127,10 +127,11 @@ class UsuarioController {
     } = req.query;
 
     //console.log("Pagina", page);
+    const limit = 10
     const usuario = await Usuario.findAll({
       attributes: ["id", "nome", "email", "barbeiro"],
-      offset: (page - 1) * 10,
-      limit: 10,
+      offset: (page - 1) * limit,
+      limit,
     });
 
     return res.json(usuario);
